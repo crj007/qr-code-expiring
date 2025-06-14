@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<script>
-    const expireDate = new Date();
-    expireDate.setFullYear(expireDate.getFullYear() + 1);
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const pdfFile = urlParams.get('file');
-    const allowedFiles = ['CS0478_solutions.pdf', 'other_solutions.pdf'];
+<html>
+<head>
+    <title>Secure Document Access</title>
+    <script>
+        // Set expiration (1 year from upload date)
+        const expireDate = new Date('2025-06-14'); // CHANGE TO YOUR EXPIRY DATE
+        
+        // Get requested file from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedFile = urlParams.get('file');
+        const allowedFiles = ['CS0478_solutions.pdf']; // ADD ALL YOUR PDF FILENAMES HERE
 
-    if (new Date() > expireDate) {
-        document.body.innerHTML = '<h1>This content has expired</h1>';
-    } else if (allowedFiles.includes(pdfFile)) {
-        window.location.href = pdfFile; // Redirect to PDF
-    } else {
-        document.body.innerHTML = '<h1>File not found</h1>';
-    }
-</script>
+        if (new Date() > expireDate) {
+            document.body.innerHTML = `
+                <h1 style="color:red">⚠️ Document Expired</h1>
+                <p>This solution file expired on ${expireDate.toDateString()}</p>
+            `;
+        } else if (!allowedFiles.includes(requestedFile)) {
+            document.body.innerHTML = `
+                <h1>404 - File Not Found</h1>
+                <p>Valid files: ${allowedFiles.join(', ')}</p>
+            `;
+        } else {
+            // Redirect to PDF after 1-second delay (avoids GitHub caching)
+            setTimeout(() => {
+                window.location.href = requestedFile;
+            }, 1000);
+        }
+    </script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            max-width: 800px; 
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <p>Loading document...</p>
+</body>
+</html>
