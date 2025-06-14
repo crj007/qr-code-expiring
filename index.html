@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Content</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .valid-content { background-color: #e8f5e9; padding: 20px; border-radius: 10px; }
+        .expired { background-color: #ffebee; padding: 20px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div id="content-container">
+        <!-- Content will be inserted by JavaScript -->
+    </div>
+
+    <script>
+        // Set expiration date (1 year from now)
+        const expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+        
+        // For testing: Uncomment next line to set expiration to today + 1 day
+        // expirationDate.setDate(expirationDate.getDate() + 1);
+        
+        const currentDate = new Date();
+        
+        const container = document.getElementById('content-container');
+        
+        if (currentDate > expirationDate) {
+            // QR code has expired
+            container.innerHTML = `
+                <div class="expired">
+                    <h1>⚠️ This QR Code Has Expired ⚠️</h1>
+                    <p>This content is no longer available as of ${expirationDate.toDateString()}</p>
+                    <p>Please contact the provider for a new QR code.</p>
+                </div>
+            `;
+        } else {
+            // QR code is still valid
+            container.innerHTML = `
+                <div class="valid-content">
+                    <h1>Welcome!</h1>
+                    <p>This QR code is valid until ${expirationDate.toDateString()}</p>
+                    <p>Here is your special content...</p>
+                    <!-- Add your actual content here -->
+                    <p><strong>Special Offer:</strong> 20% discount on your next purchase!</p>
+                    <p>Use code: QR2024</p>
+                </div>
+            `;
+            
+            // Optional: Show countdown to expiration
+            const daysLeft = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
+            const countdown = document.createElement('p');
+            countdown.textContent = `(Expires in ${daysLeft} days)`;
+            container.querySelector('.valid-content').appendChild(countdown);
+        }
+    </script>
+</body>
+</html>
