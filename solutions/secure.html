@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<script>
+    const expireDate = new Date();
+    expireDate.setFullYear(expireDate.getFullYear() + 1);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const pdfFile = urlParams.get('file');
+    const allowedFiles = ['CS0478_solutions.pdf', 'other_solutions.pdf'];
+
+    if (new Date() > expireDate) {
+        document.body.innerHTML = '<h1>This content has expired</h1>';
+    } else if (allowedFiles.includes(pdfFile)) {
+        window.location.href = pdfFile; // Redirect to PDF
+    } else {
+        document.body.innerHTML = '<h1>File not found</h1>';
+    }
+</script>
