@@ -1,44 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Secure Document Access</title>
+    <title>Exam Solutions</title>
     <script>
-        // Set expiration (1 year from upload date)
-        const expireDate = new Date('2025-06-14'); // CHANGE TO YOUR EXPIRY DATE
+        // Set expiration to 1 year from today (14 June 2025)
+        const expireDate = new Date('2025-06-14');
         
-        // Get requested file from URL
+        // List of allowed PDF files (add all your solution files here)
+        const allowedFiles = [
+            'CS0478_solutions.pdf',
+            'DOC-20250613-WA0001.pdf'
+        ];
+
         const urlParams = new URLSearchParams(window.location.search);
         const requestedFile = urlParams.get('file');
-        const allowedFiles = ['CS0478_solutions.pdf']; // ADD ALL YOUR PDF FILENAMES HERE
 
         if (new Date() > expireDate) {
             document.body.innerHTML = `
-                <h1 style="color:red">⚠️ Document Expired</h1>
-                <p>This solution file expired on ${expireDate.toDateString()}</p>
+                <div style="background:#FFEBEE; padding:20px; border-radius:8px;">
+                    <h1 style="color:#C62828;">⏰ Solutions Expired</h1>
+                    <p>These exam solutions expired on <strong>${expireDate.toDateString()}</strong>.</p>
+                </div>
             `;
         } else if (!allowedFiles.includes(requestedFile)) {
             document.body.innerHTML = `
-                <h1>404 - File Not Found</h1>
-                <p>Valid files: ${allowedFiles.join(', ')}</p>
+                <div style="background:#FFF8E1; padding:20px; border-radius:8px;">
+                    <h1 style="color:#FF8F00;">🔍 Invalid Request</h1>
+                    <p>Available solutions:</p>
+                    <ul style="text-align:left; display:inline-block;">
+                        ${allowedFiles.map(file => `<li>${file.replace('.pdf', '')}</li>`).join('')}
+                    </ul>
+                </div>
             `;
         } else {
-            // Redirect to PDF after 1-second delay (avoids GitHub caching)
-            setTimeout(() => {
-                window.location.href = requestedFile;
-            }, 1000);
+            // Redirect to PDF immediately
+            window.location.href = requestedFile;
         }
     </script>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            padding: 50px; 
-            max-width: 800px; 
-            margin: 0 auto;
-        }
-    </style>
 </head>
 <body>
-    <p>Loading document...</p>
+    <p>Loading solutions...</p>
 </body>
 </html>
