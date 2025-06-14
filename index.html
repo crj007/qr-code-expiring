@@ -1,57 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QR Code Content</title>
+    <title>Exam Solutions</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-        .valid-content { background-color: #e8f5e9; padding: 20px; border-radius: 10px; }
-        .expired { background-color: #ffebee; padding: 20px; border-radius: 10px; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .valid { background: #e8f5e9; padding: 20px; border-radius: 10px; }
+        .expired { background: #ffebee; padding: 20px; border-radius: 10px; }
+        .btn { 
+            display: inline-block; 
+            padding: 10px 15px; 
+            background: #4CAF50; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
-    <div id="content-container">
+    <div id="content">
         <!-- Content will be inserted by JavaScript -->
     </div>
 
     <script>
-        // Set expiration date (1 year from now)
-        const expirationDate = new Date();
-        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+        // Set expiration (1 year from now)
+        const expireDate = new Date();
+        expireDate.setFullYear(expireDate.getFullYear() + 1);
         
-        // For testing: Uncomment next line to set expiration to today + 1 day
-        // expirationDate.setDate(expirationDate.getDate() + 1);
+        // Get paper code from URL (e.g. ?paper=CS0478)
+        const urlParams = new URLSearchParams(window.location.search);
+        const paperCode = urlParams.get('paper') || 'default';
         
-        const currentDate = new Date();
+        // Solution files mapping
+        const solutionFiles = {
+            'CS0478': 'solutions/CS0478_solutions.pdf',
+            'MATH101': 'solutions/math_solutions.pdf'
+        };
         
-        const container = document.getElementById('content-container');
+        const container = document.getElementById('content');
         
-        if (currentDate > expirationDate) {
-            // QR code has expired
+        if (new Date() > expireDate) {
             container.innerHTML = `
                 <div class="expired">
-                    <h1>⚠️ This QR Code Has Expired ⚠️</h1>
-                    <p>This content is no longer available as of ${expirationDate.toDateString()}</p>
-                    <p>Please contact the provider for a new QR code.</p>
+                    <h2>⏰ Solutions Expired</h2>
+                    <p>These exam solutions expired on ${expireDate.toLocaleDateString()}</p>
+                    <p>Please contact your instructor for updated materials.</p>
                 </div>
             `;
         } else {
-            // QR code is still valid
+            const solutionUrl = solutionFiles[paperCode] || 'solutions/default.pdf';
             container.innerHTML = `
-                <div class="valid-content">
-                    <h1>Welcome!</h1>
-                    <p>This QR code is valid until ${expirationDate.toDateString()}</p>
-                    <p>Here is your special content...</p>
-                    <!-- Add your actual content here -->
-                    <p><strong>Special Offer:</strong> 20% discount on your next purchase!</p>
-                    <p>Use code: QR2024</p>
+                <div class="valid">
+                    <h2>📝 Exam Solutions</h2>
+                    <p>Valid until: <strong>${expireDate.toLocaleDateString()}</strong></p>
+                    <a href="${solutionUrl}" class="btn" download>
+                        Download Solutions (PDF)
+                    </a>
+                    <p style="margin-top:20px;font-size:0.9em;color:#666">
+                        Scan this QR code again to access solutions until the expiry date.
+                    </p>
                 </div>
             `;
-            
-            // Optional: Show countdown to expiration
-            const daysLeft = Math.ceil((expirationDate - currentDate) / (1000 * 60 * 60 * 24));
-            const countdown = document.createElement('p');
-            countdown.textContent = `(Expires in ${daysLeft} days)`;
-            container.querySelector('.valid-content').appendChild(countdown);
         }
     </script>
 </body>
