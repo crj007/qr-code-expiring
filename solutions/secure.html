@@ -1,44 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Exam Solutions</title>
+    <title>Document Access</title>
     <script>
-        // Set expiration to 1 year from today (14 June 2025)
-        const expireDate = new Date('2025-06-14');
+        // Set expiration to 1 day from now
+        const expireDate = new Date();
+        expireDate.setDate(expireDate.getDate() + 1); // 24-hour expiry
         
-        // List of allowed PDF files (add all your solution files here)
-        const allowedFiles = [
-            'CS0478_solutions.pdf',
-            'DOC-20250613-WA0001.pdf'
-        ];
-
+        // Get requested file
         const urlParams = new URLSearchParams(window.location.search);
         const requestedFile = urlParams.get('file');
+        const allowedFiles = ['CS0478_solutions.pdf', 'DOC-20250613-WA0001.pdf'];
 
         if (new Date() > expireDate) {
+            // Expiration message with countdown
+            const hoursLeft = Math.round((new Date() - expireDate) / (1000 * 60 * 60));
             document.body.innerHTML = `
-                <div style="background:#FFEBEE; padding:20px; border-radius:8px;">
-                    <h1 style="color:#C62828;">⏰ Solutions Expired</h1>
-                    <p>These exam solutions expired on <strong>${expireDate.toDateString()}</strong>.</p>
+                <div style="
+                    max-width: 600px;
+                    margin: 50px auto;
+                    padding: 30px;
+                    background: #fff3f3;
+                    border: 1px solid #ffcccc;
+                    border-radius: 8px;
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                ">
+                    <h1 style="color: #d32f2f;">⌛ Time Limit Expired</h1>
+                    <p>This solution file expired <strong>${hoursLeft} hours ago</strong>.</p>
+                    <p><small>Expiration: ${expireDate.toLocaleString()}</small></p>
+                    <div style="
+                        margin-top: 20px;
+                        padding: 15px;
+                        background: #f9f9f9;
+                        border-radius: 5px;
+                    ">
+                        <p>This QR code was valid for 24 hours only.</p>
+                    </div>
                 </div>
             `;
         } else if (!allowedFiles.includes(requestedFile)) {
+            document.body.innerHTML = '<h1>Error: Invalid document request</h1>';
+        } else {
+            // Calculate and show time remaining
+            const hoursLeft = Math.round((expireDate - new Date()) / (1000 * 60 * 60));
             document.body.innerHTML = `
-                <div style="background:#FFF8E1; padding:20px; border-radius:8px;">
-                    <h1 style="color:#FF8F00;">🔍 Invalid Request</h1>
-                    <p>Available solutions:</p>
-                    <ul style="text-align:left; display:inline-block;">
-                        ${allowedFiles.map(file => `<li>${file.replace('.pdf', '')}</li>`).join('')}
-                    </ul>
+                <div style="
+                    max-width: 500px;
+                    margin: 50px auto;
+                    padding: 20px;
+                    text-align: center;
+                    font-family: Arial, sans-serif;
+                ">
+                    <p>⏳ <strong>${hoursLeft} hours</strong> remaining to access</p>
+                    <p>Redirecting to solutions...</p>
                 </div>
             `;
-        } else {
-            // Redirect to PDF immediately
-            window.location.href = requestedFile;
+            // Redirect after 2-second delay
+            setTimeout(() => {
+                window.location.href = requestedFile + '?t=' + Date.now();
+            }, 2000);
         }
     </script>
 </head>
 <body>
-    <p>Loading solutions...</p>
+    <!-- Fallback content -->
+    <p>Verifying access...</p>
 </body>
 </html>
