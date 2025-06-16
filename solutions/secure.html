@@ -1,93 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Time-Sensitive Access</title>
+    <meta charset="UTF-8">
+    <title>Secure File Access</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 50px;
             background: #f9f9f9;
+            padding: 50px;
         }
-        .error {
-            background: #fff8f8;
-            border: 1px solid #ffdddd;
-            border-radius: 8px;
+        .message {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
             padding: 30px;
             max-width: 500px;
-            margin: 0 auto;
+            margin: 100px auto;
+        }
+        .error {
+            border-color: #ffaaaa;
+            background: #fff0f0;
         }
         .countdown {
             font-size: 1.2em;
             color: #e74c3c;
-            margin: 20px 0;
+            margin-top: 20px;
         }
     </style>
-    <script>
-        // 1. Parse URL
-        const params = new URLSearchParams(window.location.search);
-        const file = params.get('file');
-        const expiry = params.get('expiry');
-        const now = new Date();
-        
-        // 2. Validate
-        if (!file || !expiry) {
-            showError("Missing required parameters");
-            throw new Error("Invalid URL");
-        }
-        
-        // 3. Check expiry (5-minute limit)
-        const expiryDate = new Date(expiry);
-        const timeLeft = expiryDate - now;
-        
-        if (timeLeft <= 0) {
-            showError(
-                `This link expired at ${expiryDate.toLocaleTimeString()}`,
-                "⌛ Expired"
-            );
-            throw new Error("Link expired");
-        }
-        
-        // 4. Approved files
-        const ALLOWED_FILES = [
-            "CS0478_solutions.pdf",
-            "DOC-20250613-WA0001.pdf"
-        ];
-        
-        if (!ALLOWED_FILES.includes(file)) {
-            showError(
-                `Invalid file request. Valid files: ${ALLOWED_FILES.join(", ")}`,
-                "❌ Invalid Request"
-            );
-            throw new Error("Invalid file");
-        }
-        
-        // 5. Show countdown before redirect
-        document.body.innerHTML = `
-            <div class="countdown">
-                Redirecting to solutions...<br>
-                <small>Link expires in ${Math.floor(timeLeft/60000)}m ${Math.floor((timeLeft%60000)/1000)}s</small>
-            </div>
-        `;
-        
-        // 6. Redirect with cache busting
-        setTimeout(() => {
-            window.location.href = `${file}?t=${now.getTime()}`;
-        }, 1500);
-        
-        function showError(msg, title="Error") {
-            document.body.innerHTML = `
-                <div class="error">
-                    <h1>${title}</h1>
-                    <p>${msg}</p>
-                    <p><small>Current time: ${now.toLocaleString()}</small></p>
-                </div>
-            `;
-        }
-    </script>
 </head>
 <body>
-    <!-- Fallback content -->
-    <p>Verifying access...</p>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const file = params.get("file");
+            const expiry = params.get("expiry");
+
+            const now = new Date();
+            if (!file || !expiry) return showError("Missing parameters", "Invalid Request");
+
+            const expiryTime = new Date(expiry);
+            const msLeft = expiryTime - now;
+
+            const ALLOWED_FILES = ["CS0478_solutions.pdf", "DOC-20250613-WA0001.pdf"];
+            if (!ALLOWED_FILES.includes(file)) {
+                return showError("Invalid file requested", "❌ Access Denied");
+            }
+
+            if (msLeft <= 0) {
+                return showError(`This link expired at ${expiryTime.toLocaleTimeString()} UTC`, "⌛ Expired");
+            }
+
+            // Show countdown briefly before redirect
+            document.body.innerHTML = `
+                <div class="message">
+                    <p>✅ Access granted. Redirecting now...</p>
+                    <div class="countdown">
+                        Expires in ${Math.floor(msLeft / 60000)}m ${Math.floor((msLeft % 60000) / 1000)}s
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                window.location.href = file + `?t=${Date.now()}`; // cache busting
+            }, 1500);
+
+            function showError(msg, title) {
+                document.body.innerHTML = `
+                    <div class="message error">
+                        <h2>${title}</h2>
+                        <p>${msg}</p>
+                        <p><small>Current time: ${now.toUTCString()}</small></p>
+                    </div>
+                `;
+            }
+        })();
+    </script>
 </body>
 </html>
