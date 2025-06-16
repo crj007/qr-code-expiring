@@ -1,71 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Document Access</title>
-    <script>
-        // 1. Parse URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const requestedFile = urlParams.get('file');
-        const expiryISO = urlParams.get('expiry');
-        
-        // 2. Validate parameters
-        if (!requestedFile || !expiryISO) {
-            showError("Invalid link format");
-            throw new Error("Missing parameters");
+    <title>Time-Sensitive Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f9f9f9;
         }
-        
-        // 3. Check expiry
-        const expiryDate = new Date(expiryISO);
+        .error {
+            background: #fff8f8;
+            border: 1px solid #ffdddd;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .countdown {
+            font-size: 1.2em;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+    </style>
+    <script>
+        // 1. Parse URL
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get('file');
+        const expiry = params.get('expiry');
         const now = new Date();
         
-        if (now > expiryDate) {
+        // 2. Validate
+        if (!file || !expiry) {
+            showError("Missing required parameters");
+            throw new Error("Invalid URL");
+        }
+        
+        // 3. Check expiry (5-minute limit)
+        const expiryDate = new Date(expiry);
+        const timeLeft = expiryDate - now;
+        
+        if (timeLeft <= 0) {
             showError(
-                `This link expired on ${expiryDate.toLocaleString()}`,
-                "⏰ Time Limit Expired"
+                `This link expired at ${expiryDate.toLocaleTimeString()}`,
+                "⌛ Expired"
             );
             throw new Error("Link expired");
         }
         
-        // 4. List of allowed files
-        const allowedFiles = [
+        // 4. Approved files
+        const ALLOWED_FILES = [
             "CS0478_solutions.pdf",
             "DOC-20250613-WA0001.pdf"
         ];
         
-        // 5. Validate file
-        if (!allowedFiles.includes(requestedFile)) {
+        if (!ALLOWED_FILES.includes(file)) {
             showError(
-                `Requested file not found. Valid files: ${allowedFiles.join(", ")}`,
-                "Invalid Request"
+                `Invalid file request. Valid files: ${ALLOWED_FILES.join(", ")}`,
+                "❌ Invalid Request"
             );
             throw new Error("Invalid file");
         }
         
-        // 6. Redirect to PDF (with cache busting)
-        window.location.href = `${requestedFile}?t=${now.getTime()}`;
+        // 5. Show countdown before redirect
+        document.body.innerHTML = `
+            <div class="countdown">
+                Redirecting to solutions...<br>
+                <small>Link expires in ${Math.floor(timeLeft/60000)}m ${Math.floor((timeLeft%60000)/1000)}s</small>
+            </div>
+        `;
         
-        // Helper function
-        function showError(message, title = "Error") {
+        // 6. Redirect with cache busting
+        setTimeout(() => {
+            window.location.href = `${file}?t=${now.getTime()}`;
+        }, 1500);
+        
+        function showError(msg, title="Error") {
             document.body.innerHTML = `
-                <div style="
-                    max-width: 600px;
-                    margin: 50px auto;
-                    padding: 30px;
-                    background: #fff8f8;
-                    border: 1px solid #ffdddd;
-                    border-radius: 8px;
-                    text-align: center;
-                    font-family: Arial, sans-serif;
-                ">
-                    <h1 style="color: #d32f2f;">${title}</h1>
-                    <p>${message}</p>
-                    <p><small>Generated at: ${now.toLocaleString()}</small></p>
+                <div class="error">
+                    <h1>${title}</h1>
+                    <p>${msg}</p>
+                    <p><small>Current time: ${now.toLocaleString()}</small></p>
                 </div>
             `;
         }
     </script>
 </head>
 <body>
+    <!-- Fallback content -->
     <p>Verifying access...</p>
 </body>
 </html>
